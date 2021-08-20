@@ -22,6 +22,8 @@ import org.eclipse.scout.rt.client.ui.action.menu.CalendarMenuType;
 import org.eclipse.scout.rt.client.ui.action.menu.IMenuType;
 import org.eclipse.scout.rt.client.ui.basic.calendar.AbstractCalendar;
 import org.eclipse.scout.rt.client.ui.basic.calendar.provider.AbstractCalendarItemProvider;
+import org.eclipse.scout.rt.client.ui.desktop.IDesktop;
+import org.eclipse.scout.rt.client.ui.desktop.notification.DesktopNotification;
 import org.eclipse.scout.rt.client.ui.form.AbstractForm;
 import org.eclipse.scout.rt.client.ui.form.AbstractFormHandler;
 import org.eclipse.scout.rt.client.ui.form.fields.button.AbstractCloseButton;
@@ -122,6 +124,11 @@ public class CalendarFieldForm extends AbstractForm implements IAdvancedExampleF
         public class BusinessItemProvider extends AbstractCalendarItemProvider {
 
           @Override
+          protected boolean getConfiguredMoveItemEnabled() {
+            return true;
+          }
+
+          @Override
           protected void execLoadItemsInBackground(IClientSession session, Date minDate, Date maxDate, Set<ICalendarItem> result) {
             SleepUtil.sleepSafe(5, TimeUnit.SECONDS); // simulate delay (DB-read or call external interface)
 
@@ -172,6 +179,11 @@ public class CalendarFieldForm extends AbstractForm implements IAdvancedExampleF
             cal.add(DAY_OF_YEAR, 1);
             end = cal.getTime();
             result.add(new CalendarAppointment(5L, 2L, start, end, true, "Auditorium", "Education", "Learn everything about Scout JS. Full day appointment, spans over 2 days", cssClass));
+          }
+
+          @Override
+          public void onItemMoved(ICalendarItem item, Date fromDate, Date toDate) {
+            IDesktop.CURRENT.get().addNotification(new DesktopNotification(String.format("Subject: %s\nFrom: %s \nTo: %s", item.getSubject(), fromDate, toDate)));
           }
 
           @Order(200)
